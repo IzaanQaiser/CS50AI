@@ -90,18 +90,32 @@ def sample_pagerank(corpus, damping_factor, n):
         page_rank[page] /= total_samples
 
     return page_rank
-    
+
 
 def iterate_pagerank(corpus, damping_factor):
-    """
-    Return PageRank values for each page by iteratively updating
-    PageRank values until convergence.
+    num_pages = len(corpus)
+    base_rank = (1 - damping_factor) / num_pages
+    ranks = {page: 1 / num_pages for page in corpus}
+    updated_ranks = {}
+    converged = False
 
-    Return a dictionary where keys are page names, and values are
-    their estimated PageRank value (a value between 0 and 1). All
-    PageRank values should sum to 1.
-    """
-    raise NotImplementedError
+    while not converged:
+        for target_page in ranks:
+            rank_sum = 0
+            for source_page, links in corpus.items():
+                if target_page in links:
+                    rank_sum += ranks[source_page] / len(links)
+                if not links:
+                    rank_sum += ranks[source_page] / num_pages
+            updated_ranks[target_page] = base_rank + damping_factor * rank_sum
+
+        converged = all(
+            abs(ranks[page] - updated_ranks[page]) <= 0.001 for page in ranks
+        )
+        ranks.update(updated_ranks)
+
+    return ranks
+
 
 
 if __name__ == "__main__":
