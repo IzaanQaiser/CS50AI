@@ -49,15 +49,25 @@ def crawl(directory):
 
 
 def transition_model(corpus, page, damping_factor):
-    """
-    Return a probability distribution over which page to visit next,
-    given a current page.
+    
+    probabilities = {}
+    outgoing_links = corpus[page]
 
-    With probability `damping_factor`, choose a link at random
-    linked to by `page`. With probability `1 - damping_factor`, choose
-    a link at random chosen from all pages in the corpus.
-    """
-    raise NotImplementedError
+    if not outgoing_links:
+        equal_prob = 1 / len(corpus)
+        for p in corpus:
+            probabilities[p] = equal_prob
+    
+    else:
+        base_prob = (1 - damping_factor) / len(corpus)
+        for p in corpus:
+            probabilities[p] = base_prob
+
+        link_prob = damping_factor / len(outgoing_links)
+        for linked_page in outgoing_links:
+            probabilities[linked_page] += link_prob
+    
+    return probabilities
 
 
 def sample_pagerank(corpus, damping_factor, n):
